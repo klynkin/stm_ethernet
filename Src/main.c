@@ -146,6 +146,10 @@ int main(void)
   MX_UART5_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
+  //HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_1);
+  //HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_2);
+  //TIM9->CCR1=0;
+  //TIM9->CCR2=0;
   MX_FREERTOS_Init();
 
   /* USER CODE END 2 */
@@ -570,7 +574,7 @@ static void MX_GPIO_Init(void)
                            Stop_7_Pin Stop_8_Pin Stop_9_Pin */
   GPIO_InitStruct.Pin = Stop_3_Pin|Stop_4_Pin|Stop_5_Pin|Stop_6_Pin 
                           |Stop_7_Pin|Stop_8_Pin|Stop_9_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
@@ -610,13 +614,13 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
   HAL_NVIC_SetPriority(EXTI4_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+  HAL_NVIC_DisableIRQ(EXTI4_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 7, 0);
+  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 8, 0);
+  HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
 
 }
 

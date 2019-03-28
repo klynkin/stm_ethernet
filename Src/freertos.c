@@ -24,12 +24,12 @@ extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
-xSemaphoreHandle xBinarySemaphore0;
+/*xSemaphoreHandle xBinarySemaphore0;
 xSemaphoreHandle xBinarySemaphore1;
 xSemaphoreHandle xBinarySemaphore2;
 xSemaphoreHandle xBinarySemaphore3;
 xSemaphoreHandle xBinarySemaphore4;
-xSemaphoreHandle xBinarySemaphore5;
+xSemaphoreHandle xBinarySemaphore5;*/
 xSemaphoreHandle xBinarySemaphoreStop;
 xSemaphoreHandle xBinarySemaphoreStart;
 xQueueHandle xQueue;
@@ -63,6 +63,8 @@ static void tcp_thread( void *pvParameters );
 static void task_start(void *pvParameters);
 static void task_stop(void *pvParameters);
 static void task_nextion(void *pvParameters);
+static void task_encoder(void *pvParameters);
+
 //static void task_DRV(void *pvParameters);
 void StartDefaultTask(void const * argument);
 void MX_FREERTOS_Init(void);
@@ -94,22 +96,22 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-vSemaphoreCreateBinary( xBinarySemaphore0 );
+/*vSemaphoreCreateBinary( xBinarySemaphore0 );
 vSemaphoreCreateBinary( xBinarySemaphore1 );
 vSemaphoreCreateBinary( xBinarySemaphore2 );
 vSemaphoreCreateBinary( xBinarySemaphore3 );
 vSemaphoreCreateBinary( xBinarySemaphore4 );
-vSemaphoreCreateBinary( xBinarySemaphore5 );
+vSemaphoreCreateBinary( xBinarySemaphore5 );*/
 vSemaphoreCreateBinary( xBinarySemaphoreStart );
 vSemaphoreCreateBinary( xBinarySemaphoreStop );
 xQueue = xQueueCreate(1, sizeof( int ) );
 xQueueStart = xQueueCreate(1, sizeof( int ) );
 xQueueEncoder=xQueueCreate(1, sizeof( int ) );
 xQueueSwitch=xQueueCreate(1, sizeof( int ) );
-if( xBinarySemaphore1 != NULL && xBinarySemaphore2 != NULL && xBinarySemaphore3 != NULL && xBinarySemaphoreStart != NULL && xBinarySemaphoreStop != NULL)
+if(xBinarySemaphoreStart != NULL && xBinarySemaphoreStop != NULL)
 {
-  //  osThreadDef(task_start, task_start, 2, 0, 400);
-  //  task_startHandle = osThreadCreate(osThread(task_start), NULL);
+    osThreadDef(task_start, task_start, 2, 0, 400);
+    task_startHandle = osThreadCreate(osThread(task_start), NULL);
 }
 vTaskStartScheduler();
   /* USER CODE END RTOS_THREADS */
@@ -154,8 +156,8 @@ void StartDefaultTask(void const * argument)
   	  		{
   			//	HAL_UART_Transmit(&huart2, "port listening\r\n", strlen("port listening\r\n"), 0x100);
   				conn01.conn = conn;
-  				err=netconn_write(conn, "hello", 5, NETCONN_COPY);
-  			//	sys_thread_new("tcp_thread", tcp_thread, (void*)&conn01, 1500, osPriorityHigh );
+  				err=netconn_write(conn, "hello\r\n", strlen("hello\r\n"), NETCONN_COPY);
+  				sys_thread_new("tcp_thread", tcp_thread, (void*)&conn01, 1500, osPriorityHigh );
   			}
   	  	}
   		else
@@ -185,20 +187,25 @@ int lReceivedValue;
 static int i=1;
 
   	xStatus = xQueueReceive( xQueueStart, &lReceivedValue, portMAX_DELAY);
-	sent_err=netconn_write(conn, "ZO2", 3, NETCONN_COPY);
-	sent_err=netconn_write(conn, "ZO2", 3, NETCONN_COPY);
+	sent_err=netconn_write(conn, "ZO2\r\n", strlen("ZO2\r\n"), NETCONN_COPY);
 	if (sent_err!=ERR_OK)
     	{
 			netconn_delete(conn);
     	}
 		else
 		{
-			sys_thread_new("task_stop", task_stop, (void*)conn, 2048, 3 );
-		//	sys_thread_new("task_nextion", task_nextion, (void*)conn, 512, 1 );
+			sys_thread_new("task_stop", task_stop, (void*)conn, 512, 3 );
+			sys_thread_new("task_nextion", task_nextion, (void*)conn, 512, 1 );
 		//	sys_thread_new("task_DRV", task_DRV, (void*)conn, 128, 1 );
-		//	sys_thread_new("vHandlerTask1", vHandlerTask1, (void*)&conn, 256, 1);
+			sys_thread_new("vHandlerTask1", vHandlerTask1, (void*)conn, 1024, 1);
+			sys_thread_new("task_encoder", task_encoder, (void*)conn, 256, 2);
+
 
 		}
+	for(;;)
+			{
+		vTaskDelay(1);
+			}
 
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -212,12 +219,14 @@ static void vHandlerTask1( void *pvParameters )
 	int *buf;
 	int lReceivedValue;
 	char str[6];
+//	xSemaphoreTake(xBinarySemaphore1, 100);
 	for(;;)
 	{
-		xStatus = xQueueReceive(xQueueSwitch, &lReceivedValue, portMAX_DELAY);
-    	sprintf(str, "ZO3 %d", lReceivedValue);
+	  	xStatus = xQueueReceive( xQueueSwitch, &lReceivedValue, portMAX_DELAY);
+	  	sprintf(str, "ZO3 %d\r\n", lReceivedValue);
 		taskENTER_CRITICAL();
-		err=netconn_write(conn, str, 5, NETCONN_COPY);
+    	HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_0);
+    	err=netconn_write(conn, str, 7, NETCONN_COPY);
 			if (err!=ERR_OK)
 			   	{
 				netconn_delete(conn);
@@ -234,6 +243,9 @@ static void task_start(void *pVparameters)
 	xSemaphoreTake(xBinarySemaphoreStart, 100);
 	xSemaphoreTake(xBinarySemaphoreStart, portMAX_DELAY );
 	xQueueSendToBack( xQueueStart, &i, 0 );
+	HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 	osThreadTerminate(NULL);
 		for(;;)
 		{
@@ -250,7 +262,7 @@ conn=(struct netconn *) pVparameters;
 xSemaphoreTake(xBinarySemaphoreStop, 100);
 //HAL_UART_Transmit(&huart2, "enter to Stop\r\n", strlen("enter to Stop\r\n"), 0x100);
 xSemaphoreTake(xBinarySemaphoreStop, portMAX_DELAY );
-err=netconn_write(conn, "emerg", 5, NETCONN_COPY);
+err=netconn_write(conn, "ZO1\r\n", 5, NETCONN_COPY);
 netconn_close(conn);
 netconn_delete(conn);
 //HAL_NVIC_DisableIRQ(EXTI4_IRQn);
@@ -260,6 +272,11 @@ netconn_delete(conn);
 //osThreadTerminate(tcp_thread);
 //osThreadTerminate(defaultTaskHandle);
 //osThreadTerminate(task_nextion);
+for(;;)
+{
+
+}
+
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -364,30 +381,34 @@ static void task_encoder(void *pVparametrs)
 	err_t err;
 	struct netconn *conn;
 	conn=(struct netconn *) pVparametrs;
-		xStatus = xQueueReceive( xQueueEncoder, &counter, portMAX_DELAY);
+	xStatus = xQueueReceive( xQueueEncoder, &counter, portMAX_DELAY);
+	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_1);
 
 	  		      for(;;)
 	  		      {
+
 	  		    	xStatus = xQueueReceive( xQueueEncoder, &counter, (counter)/portTICK_RATE_MS);
 	  		    	if (counter==0)
 	  		    	{
-	  		    		HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_1);
 	  		    		TIM3->CNT=0;
+	  		    //		continue;
+	  		    		vTaskDelay(1);
+	  		    		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_0);
 	  		    	}
 	  		    	else
 	  		    	{
-	  		    	HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_0);
-				 	encoder_val=100;
-				 	sprintf(str, "ZO3 %d",encoder_val);
-				 	taskENTER_CRITICAL();
-				 	err=netconn_write(conn, str, strlen(str), NETCONN_COPY);
-				 	if (err!=ERR_OK)
-				 	   	{
-				 		netconn_delete(conn);
-				 		}
-				 	taskEXIT_CRITICAL();
-	  		    	}
-
+	  		    		//vTaskDelay(1000);
+	  		    		encoder_val=TIM3->CNT;
+	  		    		sprintf(str, "ZO3 %d\r\n",encoder_val);
+	  		    		taskENTER_CRITICAL();
+	  		    		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_0);
+	  		    		err=netconn_write(conn, str, strlen(str), NETCONN_COPY);
+	  		    		if (err!=ERR_OK)
+	  		    		{
+	  		    		netconn_delete(conn);
+	  		    		}
+	  		    		taskEXIT_CRITICAL();
+	  		      }
 	  		      }
 	}
 

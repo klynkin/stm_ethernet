@@ -182,11 +182,12 @@ void SysTick_Handler(void)
 void EXTI2_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI2_IRQn 0 */
+	EXTI->PR |= (1<<2);
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR( xBinarySemaphoreStart, &xHigherPriorityTaskWoken );
+	xSemaphoreGiveFromISR( xBinarySemaphoreStop, &xHigherPriorityTaskWoken );
   /* USER CODE END EXTI2_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+//  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
   /* USER CODE BEGIN EXTI2_IRQn 1 */
 
   /* USER CODE END EXTI2_IRQn 1 */
@@ -198,11 +199,12 @@ void EXTI2_IRQHandler(void)
 void EXTI3_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI3_IRQn 0 */
+	EXTI->PR |= (1<<3);
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR( xBinarySemaphoreStop, &xHigherPriorityTaskWoken );
+	xSemaphoreGiveFromISR( xBinarySemaphoreStart, &xHigherPriorityTaskWoken );
   /* USER CODE END EXTI3_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
 
   /* USER CODE END EXTI3_IRQn 1 */
@@ -214,12 +216,13 @@ void EXTI3_IRQHandler(void)
 void EXTI4_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI4_IRQn 0 */
+	EXTI->PR |= (1<<4);
 	int i=0;
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
+	xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
   /* USER CODE END EXTI4_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
   /* USER CODE BEGIN EXTI4_IRQn 1 */
 
   /* USER CODE END EXTI4_IRQn 1 */
@@ -231,33 +234,33 @@ void EXTI4_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
-	int i=1;
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != GPIO_PIN_SET)
-		{
+	int i;
+	 if (EXTI->PR & (1<<7)) // Прерывание от EXTI7?
+	      {  EXTI->PR |= (1<<7);
 			i=1;
 			static portBASE_TYPE xHigherPriorityTaskWoken;
 			xHigherPriorityTaskWoken = pdFALSE;
-			xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
+			xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
 		}
-	else if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != GPIO_PIN_SET)
-			{
+	else if (EXTI->PR & (1<<8)) // Прерывание от EXTI8?
+    	 {  EXTI->PR |= (1<<8);
 			i=2;
 			static portBASE_TYPE xHigherPriorityTaskWoken;
 			xHigherPriorityTaskWoken = pdFALSE;
-			xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
-			}
-	else if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != GPIO_PIN_SET)
-			{
-			i=3;
-			static portBASE_TYPE xHigherPriorityTaskWoken;
-			xHigherPriorityTaskWoken = pdFALSE;
-			xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
-			}
+			xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+		 }
+	else if (EXTI->PR & (1<<9)) // Прерывание от EXTI9?
+	    	 {  EXTI->PR |= (1<<9);
+				i=3;
+				static portBASE_TYPE xHigherPriorityTaskWoken;
+				xHigherPriorityTaskWoken = pdFALSE;
+				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+			 }
 
   /* USER CODE END EXTI9_5_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
+  //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
@@ -269,29 +272,29 @@ void EXTI9_5_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-	int i=4;
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != GPIO_PIN_SET)
-			{
-		i=4;
-					static portBASE_TYPE xHigherPriorityTaskWoken;
-					xHigherPriorityTaskWoken = pdFALSE;
-					xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
+	int i;
+	 if (EXTI->PR & (1<<10)) // Прерывание от EXTI7?
+		      {  EXTI->PR |= (1<<10);
+				i=4;
+				static portBASE_TYPE xHigherPriorityTaskWoken;
+				xHigherPriorityTaskWoken = pdFALSE;
+				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
 			}
-	else if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != GPIO_PIN_SET)
-			{
-		i=5;
-					static portBASE_TYPE xHigherPriorityTaskWoken;
-					xHigherPriorityTaskWoken = pdFALSE;
-					xQueueSendToBackFromISR( xQueueSwitch, &i, 0 );
-			}
+		else if (EXTI->PR & (1<<11)) // Прерывание от EXTI8?
+	    	 {  EXTI->PR |= (1<<11);
+				i=5;
+				static portBASE_TYPE xHigherPriorityTaskWoken;
+				xHigherPriorityTaskWoken = pdFALSE;
+				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+			 }
 
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
+  //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
+  //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
 
   /* USER CODE END EXTI15_10_IRQn 1 */
