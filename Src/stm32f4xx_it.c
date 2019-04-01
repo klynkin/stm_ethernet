@@ -217,10 +217,27 @@ void EXTI4_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI4_IRQn 0 */
 	EXTI->PR |= (1<<4);
-	int i=0;
+	static int i=0;
+	static uint8_t first_intr=0;
+	if (first_intr!=0)
+	{
+	static uint8_t front=0;
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
-	xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+	if (front == 0) //концевик нажат
+	{
+		front=1;
+		xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+		i=6;
+	}
+	else	//концевик отжат
+	{
+		front=0;
+		xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+		i=0;
+	}
+	}
+	first_intr=1;
   /* USER CODE END EXTI4_IRQn 0 */
  // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
   /* USER CODE BEGIN EXTI4_IRQn 1 */
@@ -234,27 +251,63 @@ void EXTI4_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
-	int i;
-	 if (EXTI->PR & (1<<7)) // Прерывание от EXTI7?
+	static int i1=1;
+	static uint8_t front1=0;
+	static int i2=2;
+	static uint8_t front2=0;
+	static int i3=3;
+	static uint8_t front3=0;
+
+	if (EXTI->PR & (1<<7)) // Прерывание от EXTI7?
 	      {  EXTI->PR |= (1<<7);
-			i=1;
 			static portBASE_TYPE xHigherPriorityTaskWoken;
 			xHigherPriorityTaskWoken = pdFALSE;
-			xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+			if (front1 == 0) //концевик нажат
+				{
+					front1=1;
+					xQueueSendToBackFromISR( xQueueSwitch, &i1, &xHigherPriorityTaskWoken );
+					i1=7;
+				}
+				else	//концевик отжат
+				{
+					front1=0;
+					xQueueSendToBackFromISR( xQueueSwitch, &i1, &xHigherPriorityTaskWoken );
+					i1=1;
+				}
 		}
 	else if (EXTI->PR & (1<<8)) // Прерывание от EXTI8?
     	 {  EXTI->PR |= (1<<8);
-			i=2;
 			static portBASE_TYPE xHigherPriorityTaskWoken;
 			xHigherPriorityTaskWoken = pdFALSE;
-			xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+			if (front2 == 0) //концевик нажат
+				{
+					front2=1;
+					xQueueSendToBackFromISR( xQueueSwitch, &i2, &xHigherPriorityTaskWoken );
+					i2=8;
+				}
+			else	//концевик отжат
+				{
+					front2=0;
+					xQueueSendToBackFromISR( xQueueSwitch, &i2, &xHigherPriorityTaskWoken );
+					i2=2;
+				}
 		 }
 	else if (EXTI->PR & (1<<9)) // Прерывание от EXTI9?
 	    	 {  EXTI->PR |= (1<<9);
-				i=3;
 				static portBASE_TYPE xHigherPriorityTaskWoken;
 				xHigherPriorityTaskWoken = pdFALSE;
-				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+				if (front3 == 0) //концевик нажат
+					{
+						front3=1;
+						xQueueSendToBackFromISR( xQueueSwitch, &i3, &xHigherPriorityTaskWoken );
+						i3=9;
+					}
+					else	//концевик отжат
+					{
+						front3=0;
+						xQueueSendToBackFromISR( xQueueSwitch, &i3, &xHigherPriorityTaskWoken );
+						i3=3;
+					}
 			 }
 
   /* USER CODE END EXTI9_5_IRQn 0 */
@@ -272,20 +325,43 @@ void EXTI9_5_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-	int i;
+		static int i4=4;
+		static uint8_t front4=0;
+		static int i5=5;
+		static uint8_t front5=0;
 	 if (EXTI->PR & (1<<10)) // Прерывание от EXTI7?
 		      {  EXTI->PR |= (1<<10);
-				i=4;
 				static portBASE_TYPE xHigherPriorityTaskWoken;
 				xHigherPriorityTaskWoken = pdFALSE;
-				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+				if (front4 == 0) //концевик нажат
+						{
+							front4=1;
+							xQueueSendToBackFromISR( xQueueSwitch, &i4, &xHigherPriorityTaskWoken );
+							i4=10;
+						}
+				else	//концевик отжат
+					{
+							front4=0;
+							xQueueSendToBackFromISR( xQueueSwitch, &i4, &xHigherPriorityTaskWoken );
+							i4=4;
+					}
 			}
 		else if (EXTI->PR & (1<<11)) // Прерывание от EXTI8?
 	    	 {  EXTI->PR |= (1<<11);
-				i=5;
 				static portBASE_TYPE xHigherPriorityTaskWoken;
 				xHigherPriorityTaskWoken = pdFALSE;
-				xQueueSendToBackFromISR( xQueueSwitch, &i, &xHigherPriorityTaskWoken );
+				if (front5 == 0) //концевик нажат
+						{
+							front5=1;
+							xQueueSendToBackFromISR( xQueueSwitch, &i5, &xHigherPriorityTaskWoken );
+							i5=11;
+						}
+				else	//концевик отжат
+						{
+							front5=0;
+							xQueueSendToBackFromISR( xQueueSwitch, &i5, &xHigherPriorityTaskWoken );
+							i5=5;
+						}
 			 }
 
   /* USER CODE END EXTI15_10_IRQn 0 */
