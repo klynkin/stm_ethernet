@@ -377,7 +377,19 @@ static void task_nextion(void *pVparameters)
 									}
 
 								  }
-
+								   else if	((uint8_t)buf[2]=='3')
+								    	{
+								    		if((uint8_t)buf[4]=='1')
+								    		{
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+								    		}
+								    	}
 								 /*  else if	((uint8_t)buf[2]=='1')
 								   {
 									   if((uint8_t)buf[4]=='1')
