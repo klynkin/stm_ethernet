@@ -51,6 +51,8 @@
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "lwip.h"
+//#include "servo_control.h"
+//#include "mUSB.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -65,9 +67,10 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim9;
 TIM_HandleTypeDef htim12;
+GPIO_InitTypeDef GPIO_InitStruct;
 
 UART_HandleTypeDef huart4;
-UART_HandleTypeDef huart5;
+//UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 
@@ -88,7 +91,7 @@ static void MX_TIM9_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_UART5_Init(void);
+//static void MX_UART5_Init(void);
 static void MX_UART4_Init(void);
 //static void MX_SPI1_Init(void);
 void StartDefaultTask(void const * argument);
@@ -142,7 +145,7 @@ int main(void)
   MX_TIM12_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
-  MX_UART5_Init();
+  //MX_UART5_Init();
   MX_UART4_Init();
   //MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
@@ -461,7 +464,7 @@ static void MX_UART4_Init(void)
 }
 
 /* UART5 init function */
-static void MX_UART5_Init(void)
+/*static void MX_UART5_Init(void)
 {
 
   huart5.Instance = UART5;
@@ -478,6 +481,8 @@ static void MX_UART5_Init(void)
   }
 
 }
+*/
+
 
 /* USART1 init function */
 static void MX_USART1_UART_Init(void)
@@ -527,7 +532,6 @@ static void MX_USART3_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -539,6 +543,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(DXL_DIR_GPIO_Port, DXL_DIR_Pin, GPIO_PIN_RESET);
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
@@ -553,7 +559,7 @@ static void MX_GPIO_Init(void)
                            Stop_7_Pin Stop_8_Pin Stop_9_Pin */
   GPIO_InitStruct.Pin = Stop_3_Pin|Stop_4_Pin|Stop_5_Pin|Stop_6_Pin 
                           |Stop_7_Pin|Stop_8_Pin|Stop_9_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
@@ -583,6 +589,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
   /* USER CODE END GPIO */
 
   /*Configure GPIO pin : USER_LED_Pin */

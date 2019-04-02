@@ -389,6 +389,16 @@ static void task_nextion(void *pVparameters)
 								    			vTaskDelay(100);
 								    			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
 								    		}
+								    		else if ((uint8_t)buf[4]=='0')
+								    		{
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(100);
+								    			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
+								    		}
 								    	}
 								 /*  else if	((uint8_t)buf[2]=='1')
 								   {
