@@ -53,6 +53,8 @@
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/LwIP/system/arch"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Keil_v5\cube\heap_expr\Eurobot\Middlewares\Third_Party\LwIP\src\apps\httpd&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Keil_v5\cube\heap_expr\Eurobot\SPL\inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Keil_v5\cube\heap_expr\Eurobot\SPL\src&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1282240872" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -285,8 +287,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration artifactName="${ProjName}" configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="Eurobot"/>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/Eurobot"/>
 		</configuration>
+		<configuration configurationName="Release"/>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
