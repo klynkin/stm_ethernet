@@ -149,10 +149,10 @@ int main(void)
   MX_UART4_Init();
   //MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  //HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_1);
-  //HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_2);
-  //TIM9->CCR1=0;
-  //TIM9->CCR2=0;
+  TIM9->CCR1=0;
+  TIM9->CCR2=0;
+  HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_2);
   MX_FREERTOS_Init();
 
   /* USER CODE END 2 */
@@ -360,7 +360,7 @@ static void MX_TIM9_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim9.Instance = TIM9;
-  htim9.Init.Prescaler = 84;
+  htim9.Init.Prescaler = 83;
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim9.Init.Period = 20000;
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
