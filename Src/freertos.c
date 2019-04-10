@@ -25,6 +25,7 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim9;
 /*xSemaphoreHandle xBinarySemaphore0;
 xSemaphoreHandle xBinarySemaphore1;
 xSemaphoreHandle xBinarySemaphore2;
@@ -97,12 +98,6 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-/*vSemaphoreCreateBinary( xBinarySemaphore0 );
-vSemaphoreCreateBinary( xBinarySemaphore1 );
-vSemaphoreCreateBinary( xBinarySemaphore2 );
-vSemaphoreCreateBinary( xBinarySemaphore3 );
-vSemaphoreCreateBinary( xBinarySemaphore4 );
-vSemaphoreCreateBinary( xBinarySemaphore5 );*/
 vSemaphoreCreateBinary( xBinarySemaphoreStart );
 vSemaphoreCreateBinary( xBinarySemaphoreStop );
 xQueue = xQueueCreate(1, sizeof( int ) );
@@ -155,9 +150,8 @@ void StartDefaultTask(void const * argument)
   	  		}
   	  		if (err==ERR_OK)
   	  		{
-  			//	HAL_UART_Transmit(&huart2, "port listening\r\n", strlen("port listening\r\n"), 0x100);
   				conn01.conn = conn;
-  				err=netconn_write(conn, "hello\r\n", strlen("hello\r\n"), NETCONN_COPY);
+  				//err=netconn_write(conn, "hello\r\n", strlen("hello\r\n"), NETCONN_COPY);
   				sys_thread_new("tcp_thread", tcp_thread, (void*)&conn01, 1500, osPriorityHigh );
   			}
   	  	}
@@ -197,7 +191,6 @@ static int i=1;
 		{
 			sys_thread_new("task_stop", task_stop, (void*)conn, 256, 3 );
 			TaskNextionHandle=sys_thread_new("task_nextion", task_nextion, (void*)conn, 1024, 1 );
-		//	sys_thread_new("task_DRV", task_DRV, (void*)conn, 128, 1 );
 			Task01Handle=sys_thread_new("vHandlerTask1", vHandlerTask1, (void*)conn, 256, 1);
 			TaskEncoderHandle=sys_thread_new("task_encoder", task_encoder, (void*)conn, 256, 2);
 
@@ -279,6 +272,10 @@ xSemaphoreTake(xBinarySemaphoreStop, 100);
 //HAL_UART_Transmit(&huart2, "enter to Stop\r\n", strlen("enter to Stop\r\n"), 0x100);
 xSemaphoreTake(xBinarySemaphoreStop, portMAX_DELAY );
 err=netconn_write(conn, "ZO1\r\n", 5, NETCONN_COPY);
+TIM9->CCR1=0;
+TIM9->CCR2=0;
+HAL_TIM_PWM_Stop(&htim9,TIM_CHANNEL_1);
+HAL_TIM_PWM_Stop(&htim9,TIM_CHANNEL_2);
 netconn_close(conn);
 netconn_delete(conn);
 //HAL_NVIC_DisableIRQ(EXTI4_IRQn);
@@ -382,37 +379,61 @@ static void task_nextion(void *pVparameters)
 								    		if((uint8_t)buf[4]=='1')
 								    		{
 								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-								    			vTaskDelay(100);
+								    			vTaskDelay(1);
 								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-								    			vTaskDelay(100);
+								    			vTaskDelay(10);
 								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-								    			vTaskDelay(100);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+								    			vTaskDelay(1);
 								    			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
 								    		}
 								    		else if ((uint8_t)buf[4]=='0')
 								    		{
 								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
-								    			vTaskDelay(100);
+								    			vTaskDelay(1);
 								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
-								    			vTaskDelay(100);
+								    			vTaskDelay(10);
 								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
-								    			vTaskDelay(100);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(1);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(10);
+								    			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+								    			vTaskDelay(1);
 								    			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
 								    		}
 								    	}
-								 /*  else if	((uint8_t)buf[2]=='1')
+								   else if	((uint8_t)buf[2]=='1')
 								   {
 									   if((uint8_t)buf[4]=='1')
 									   {
 										  TIM9->CCR1=20000;
 										  TIM9->CCR2=0;
 									   }
-									   else if ((uint8_t)buf[2]=='1')
+									   else if ((uint8_t)buf[4]=='0')
 									   {
 										   TIM9->CCR1=0;
 										   TIM9->CCR2=0;
 									   }
-								   }*/
+								   }
 
 								    else if	((uint8_t)buf[2]=='6')
 								  {
@@ -457,19 +478,15 @@ static void task_encoder(void *pVparametrs)
 	  		    	{
 	  		    		TIM3->CNT=0;
 	  		    		TIM4->CNT=0;
-	  		    //		continue;
 	  		    		vTaskDelay(1);
-	  		    		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_0);
 	  		    	}
 	  		    	else
 	  		    	{
-	  		    		//vTaskDelay(1000);
-	  		    		encoder_val1=TIM3->CNT;
-	  		    		encoder_val2=TIM4->CNT;
+	  		    		encoder_val2=TIM3->CNT;
+	  		    		encoder_val1=TIM4->CNT;
 	  		    		sprintf(str, "ZO4 0 %d\r\n",encoder_val1);
 	  		    		sprintf(str2, "ZO4 1 %d\r\n",encoder_val2);
 	  		    		taskENTER_CRITICAL();
-	  		    		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_0);
 	  		    		err=netconn_write(conn, str, strlen(str), NETCONN_COPY);
 	  		    		err=netconn_write(conn, str2, strlen(str2), NETCONN_COPY);
 	  		    		if (err!=ERR_OK)
@@ -481,11 +498,7 @@ static void task_encoder(void *pVparametrs)
 	  		      }
 	}
 
-/*static void task_DRV(void *pVparametrs)
-{
-	TIM9->CCR1=20000;
-	TIM9->CCR2=0;
-}*/
+
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
