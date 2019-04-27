@@ -37,12 +37,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-extern xSemaphoreHandle xBinarySemaphore0;
-extern xSemaphoreHandle xBinarySemaphore1;
-extern xSemaphoreHandle xBinarySemaphore2;
-extern xSemaphoreHandle xBinarySemaphore3;
-extern xSemaphoreHandle xBinarySemaphore4;
-extern xSemaphoreHandle xBinarySemaphore5;
+
 extern xSemaphoreHandle xBinarySemaphoreStart;
 extern xSemaphoreHandle xBinarySemaphoreStop;
 extern xQueueHandle xQueueSwitch;
@@ -184,11 +179,21 @@ void EXTI2_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI2_IRQn 0 */
 	EXTI->PR |= (1<<2);
+	if (HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2))
+	{
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3, GPIO_PIN_RESET);
+	}
+	else
+	{
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR( xBinarySemaphoreStop, &xHigherPriorityTaskWoken );
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3, GPIO_PIN_SET);
+	}
   /* USER CODE END EXTI2_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
   /* USER CODE BEGIN EXTI2_IRQn 1 */
 
   /* USER CODE END EXTI2_IRQn 1 */
@@ -205,7 +210,7 @@ void EXTI3_IRQHandler(void)
 	xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR( xBinarySemaphoreStart, &xHigherPriorityTaskWoken );
   /* USER CODE END EXTI3_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
 
   /* USER CODE END EXTI3_IRQn 1 */

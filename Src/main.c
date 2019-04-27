@@ -59,19 +59,19 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
+//I2C_HandleTypeDef hi2c1;
 
 //SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim9;
-TIM_HandleTypeDef htim12;
+//TIM_HandleTypeDef htim12;
 GPIO_InitTypeDef GPIO_InitStruct;
 
-UART_HandleTypeDef huart4;
+//UART_HandleTypeDef huart4;
 //UART_HandleTypeDef huart5;
-UART_HandleTypeDef huart1;
+//UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
@@ -84,15 +84,15 @@ osThreadId defaultTaskHandle;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_I2C1_Init(void);
+//static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM9_Init(void);
-static void MX_TIM12_Init(void);
-static void MX_USART1_UART_Init(void);
+//static void MX_TIM12_Init(void);
+//static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 //static void MX_UART5_Init(void);
-static void MX_UART4_Init(void);
+//static void MX_UART4_Init(void);
 //static void MX_SPI1_Init(void);
 void StartDefaultTask(void const * argument);
 
@@ -138,21 +138,27 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
+ // MX_I2C1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM9_Init();
-  MX_TIM12_Init();
-  MX_USART1_UART_Init();
+ // MX_TIM12_Init();
+ // MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   //MX_UART5_Init();
-  MX_UART4_Init();
+ // MX_UART4_Init();
   //MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   TIM9->CCR1=0;
   TIM9->CCR2=0;
   HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_2);
+  if(HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2))
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_SET);
+  else
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3, GPIO_PIN_SET);
+
+
   MX_FREERTOS_Init();
 
   /* USER CODE END 2 */
@@ -171,8 +177,8 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+// osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
+//  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -260,7 +266,7 @@ void SystemClock_Config(void)
 }
 
 /* I2C1 init function */
-static void MX_I2C1_Init(void)
+/*static void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
@@ -278,7 +284,7 @@ static void MX_I2C1_Init(void)
   }
 
 }
-
+*/
 /* SPI1 init function */
 
 
@@ -399,7 +405,7 @@ static void MX_TIM9_Init(void)
 }
 
 /* TIM12 init function */
-static void MX_TIM12_Init(void)
+/*static void MX_TIM12_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
@@ -442,10 +448,10 @@ static void MX_TIM12_Init(void)
 
   HAL_TIM_MspPostInit(&htim12);
 
-}
+}*/
 
 /* UART4 init function */
-static void MX_UART4_Init(void)
+/*static void MX_UART4_Init(void)
 {
 
   huart4.Instance = UART4;
@@ -461,7 +467,7 @@ static void MX_UART4_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-}
+}*/
 
 /* UART5 init function */
 /*static void MX_UART5_Init(void)
@@ -485,7 +491,7 @@ static void MX_UART4_Init(void)
 
 
 /* USART1 init function */
-static void MX_USART1_UART_Init(void)
+/*static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
@@ -501,7 +507,7 @@ static void MX_USART1_UART_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-}
+}*/
 
 /* USART3 init function */
 static void MX_USART3_UART_Init(void)
@@ -548,16 +554,21 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
-
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3, GPIO_PIN_RESET);
   /*Configure GPIO pins : Stop_1_Pin Stop_2_Pin */
-  GPIO_InitStruct.Pin = Stop_1_Pin|Stop_2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pin = Stop_1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = Stop_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Stop_3_Pin Stop_4_Pin Stop_5_Pin Stop_6_Pin 
+/*Configure GPIO pins : Stop_3_Pin Stop_4_Pin Stop_5_Pin Stop_6_Pin
                            Stop_7_Pin Stop_8_Pin Stop_9_Pin */
-  GPIO_InitStruct.Pin = Stop_3_Pin|Stop_4_Pin|Stop_5_Pin|Stop_6_Pin 
+  GPIO_InitStruct.Pin = Stop_3_Pin|Stop_4_Pin|Stop_5_Pin|Stop_6_Pin
                           |Stop_7_Pin|Stop_8_Pin|Stop_9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -590,6 +601,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+      GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;//led of stop button
+      GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+      HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+
     GPIO_InitStruct.Pin = GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -608,16 +626,16 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI2_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI3_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI4_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 7, 0);
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 8, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 9, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
